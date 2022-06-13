@@ -11,7 +11,7 @@ var tbSelected = true;
 
 var working = false;
 
-var data = JSON.parse(fs.readFileSync('data.json', 'utf8'));
+var data = JSON.parse(fs.readFileSync('/home/alex/.productividay/data.json', 'utf8'));
 
 var tasks = data.tasks
 var hist = data.hist
@@ -59,7 +59,7 @@ function saveData() {
 
     json = JSON.stringify(d)
 
-    fs.writeFile('data.json', json, function (err) {});
+    fs.writeFile('/home/alex/.productividay/data.json', json, function (err) {});
 }
 
 function topBar(i=0) {
@@ -416,7 +416,7 @@ function tasksTable() {
 function progressBar(task, erase) {
     working = true;
 
-    var duration = task[1];
+    var duration = task[1]*60;
     var progressBar , progress = 0 ;
 
     function doProgress()
