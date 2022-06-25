@@ -11,7 +11,8 @@ var tbSelected = true;
 
 var working = false;
 
-var data = JSON.parse(fs.readFileSync('/home/alex/.productividay/data.json', 'utf8'));
+var path = require("path").join(__dirname, 'data.json')
+var data = JSON.parse(fs.readFileSync(path, 'utf8'));
 
 var tasks = data.tasks
 var hist = data.hist
@@ -24,7 +25,7 @@ if (data.last != new Date().getDate()) {
 
 term.clear() ;
 term.fullscreen()
-term.windowTitle("Productivity App")
+term.windowTitle("Productividay")
 
 topBar()
 
@@ -59,7 +60,7 @@ function saveData() {
 
     json = JSON.stringify(d)
 
-    fs.writeFile('/home/alex/.productividay/data.json', json, function (err) {});
+    fs.writeFile(path, json, function (err) {});
 }
 
 function topBar(i=0) {
@@ -419,8 +420,22 @@ function progressBar(task, erase) {
     var duration = task[1]*60;
     var progressBar , progress = 0 ;
 
+    var paused = false
+
+    term.on( 'key' , function( name , matches , data ) {
+        if (name == "p") {
+            paused = !paused
+        }
+    })
+
     function doProgress()
     {
+        if (paused) {
+            term.dim.moveTo(0, term.height, "Paused - ", task[0])
+            setTimeout( doProgress, 1)
+            return
+        }
+
         progress += 0.001;
         progressBar.update( progress ) ;
         
@@ -430,7 +445,7 @@ function progressBar(task, erase) {
 
             if (hist.indexOf(new Date().getDate()) == -1) {
                 t = true;
-                for (i in tasks && i > 0) {
+                for (i=1; i < tasks.length; i++) {
                     if (tasks[i][2] == "-") {
                         t = false
                     }
@@ -460,3 +475,6 @@ function progressBar(task, erase) {
 
     doProgress() ;
 }
+
+
+
