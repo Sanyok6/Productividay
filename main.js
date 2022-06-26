@@ -228,12 +228,17 @@ function tasksTable() {
     function renderTable(ind=0) {
         var t = JSON.parse(JSON.stringify(tasks));
 
-        for (i in t) {
+        t[0].pop()
+
+        for (let i=1; i<t.length; i++) {
+            t[i][0] = "^"+t[i][3]+t[i][0] //•
             t[i][1] += " minutes"
+            t[i].pop()
         }
  
         try {
             t[ind+1][0] = "^c^_"+t[ind+1][0]+"^"
+            t[i][1] += " minutes"
         } catch {}
 
         term.moveTo(0, 3)
@@ -250,7 +255,6 @@ function tasksTable() {
             }
         );    
         term.hideCursor()
-        //tbSelected=false
     }
     function erase(l=line, n=7) {
         term.moveTo(0, l)
@@ -385,11 +389,54 @@ function tasksTable() {
                             function( error , input ) {
                                 input = parseInt(input)
                                 if (!isNaN(input)) {
+                                    term.eraseLine()
                                     duration = input
-                                    erase()
 
-                                    tasks.push([name, duration, "-"])
-                                    renderTable()
+                                    term.hideCursor(false)
+
+                                    var autoComplete = [
+                                        'white', 
+                                        'red' ,
+                                        'green' ,
+                                        'yellow' ,
+                                        'blue' ,
+                                        'magenta' ,
+                                        'cyan'
+                                    ] ;
+                                    
+                                    term.inputField(
+                                        {
+                                            autoComplete: autoComplete ,
+                                            autoCompleteHint: true ,
+                                            autoCompleteMenu: true ,
+                                            tokenHook: function( token , isEndOfInput , previousTokens , term , config ) {
+                                                var previousText = previousTokens.join( ' ' ) ;
+
+                                                var fn = input.toString().trim();
+
+                                                
+                                                if (autoComplete.includes(token)) {
+                                                        return previousTokens.length ? null : term.yellow[token] ;
+                                                }
+
+                                            }
+                                        } ,
+                                        function( error , input ) {
+                                            if (autoComplete.includes(input)) {
+                                                erase()
+                                                
+                                                color = input
+
+                                                tasks.push([name, duration, "-", color[0]])
+                                                renderTable()                                            
+                                            } else {
+                                                term.eraseLine()
+                                                term.red("Unknown color, options are: "+autoComplete.join(", "))
+                                                editing = false
+                                            }
+                                        }
+                                    ) ;
+
 
                                 } else {
                                     term.eraseLine()
