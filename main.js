@@ -403,7 +403,8 @@ function tasksTable() {
                                         'magenta' ,
                                         'cyan'
                                     ] ;
-                                    
+
+                                    term.moveTo(2, line+1, "Task Color: ")
                                     term.inputField(
                                         {
                                             autoComplete: autoComplete ,
